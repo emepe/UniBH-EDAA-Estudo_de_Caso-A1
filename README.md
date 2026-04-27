@@ -186,24 +186,24 @@ O algoritmo guloso pode começar atribuindo P1 e P2 a E1, o que parece ótimo lo
 Adaptando ao espírito do cenário da FastBite, também é possível imaginar que E2 esteja perto de P3 e P5, mas P5 seja urgente e muito mais sensível ao tempo, enquanto P3 seja premium, porém menos crítico em prazo. Se o algoritmo atribuir primeiro P3 a E2 apenas por proximidade, pode reduzir a capacidade disponível para atender P5 da forma ideal. O resultado final pode ter maior tempo total ou até violar a janela do urgente, mesmo que cada decisão isolada tenha parecido boa no momento.
 
 
-### d) Qual é a complexidade de tempo desse algoritmo guloso em função de n pedidos e m entregadores? Justifique.
+### d) Qual é a complexidade de tempo desse algoritmo guloso em função de $n$ pedidos e $m$ entregadores? Justifique.
 
-**R.:** Na fase de atribuição, para cada um dos n pedidos é necessário examinar até m entregadores para descobrir qual deles está mais próximo e ainda pode receber o pedido. Isso leva a um custo de O(nm).
+**R.:** Na fase de atribuição, para cada um dos $n$ pedidos é necessário examinar até $m$ entregadores para descobrir qual deles está mais próximo e ainda pode receber o pedido. Isso leva a um custo de $O(nm)$.
 
-Depois da atribuição, cada entregador precisa ordenar seus pontos de coleta e entrega usando a regra do ponto mais próximo. Se um entregador receber k paradas, a estratégia de vizinho mais próximo exige, no pior caso, comparar o ponto atual com todos os restantes, depois com quase todos os restantes, e assim por diante, gerando custo O(k^2). Somando todos os entregadores, o custo total dessa segunda fase pode ser limitado por O(n^2), considerando o total de pedidos distribuídos.
+Depois da atribuição, cada entregador precisa ordenar seus pontos de coleta e entrega usando a regra do ponto mais próximo. Se um entregador receber $k$ paradas, a estratégia de vizinho mais próximo exige, no pior caso, comparar o ponto atual com todos os restantes, depois com quase todos os restantes, e assim por diante, gerando custo $O(k^2)$. Somando todos os entregadores, o custo total dessa segunda fase pode ser limitado por $O(n^2)$, considerando o total de pedidos distribuídos.
 
-Portanto, uma estimativa razoável para a complexidade do algoritmo guloso completo é **O(nm + n^2)**. Em muitos cenários práticos, essa complexidade é muito menor que a de métodos exatos exponenciais, o que explica sua atratividade operacional em sistemas que precisam responder muito rapidamente.
+Portanto, uma estimativa razoável para a complexidade do algoritmo guloso completo é $O(nm + n^2)$. Em muitos cenários práticos, essa complexidade é muito menor que a de métodos exatos exponenciais, o que explica sua atratividade operacional em sistemas que precisam responder muito rapidamente.
 
 
 ## Questão 3 — Programação Dinâmica e Divisão e Conquista
 
 ### a) A equipe sênior sugeriu aplicar Programação Dinâmica (PD) para resolver o problema de roteamento de cada entregador isoladamente (assumindo que a atribuição já está feita).
 
-**R.:** A Programação Dinâmica é aplicável ao roteamento de um único entregador com k pedidos, principalmente quando esse subproblema é tratado como uma variante do TSP com memoização sobre subconjuntos de paradas. Isso faz sentido porque, ao fixar a atribuição, o problema deixa de decidir “quem atende qual pedido” e passa a decidir apenas “em que ordem visitar os pontos de coleta e entrega” para minimizar o custo total.
+**R.:** A Programação Dinâmica é aplicável ao roteamento de um único entregador com $k$ pedidos, principalmente quando esse subproblema é tratado como uma variante do TSP com memoização sobre subconjuntos de paradas. Isso faz sentido porque, ao fixar a atribuição, o problema deixa de decidir “quem atende qual pedido” e passa a decidir apenas “em que ordem visitar os pontos de coleta e entrega” para minimizar o custo total.
 
 Informalmente, o subproblema da PD pode ser definido como: “qual é o menor custo para sair de um ponto atual, tendo já visitado um certo conjunto de pontos, e completar todas as visitas restantes respeitando as restrições de precedência e capacidade?”. Esse formato apresenta duas características clássicas que favorecem PD: subestrutura ótima e sobreposição de subproblemas. O melhor caminho restante a partir de um estado depende apenas do conjunto de pontos já visitados e da posição atual, e muitos estados se repetem em caminhos diferentes.
 
-No entanto, o custo é alto. Em uma formulação inspirada no algoritmo de Held-Karp para TSP, o tempo cresce na ordem de **O(k^2·2^k)** e o espaço na ordem de **O(k·2^k)**. Isso pode ser administrável para valores pequenos de k, mas se torna rapidamente impraticável em tempo real. Em um sistema com decisão máxima de 2 segundos por ciclo, essa abordagem pode ser aceitável apenas quando cada entregador tiver poucos pedidos, algo como 8, 10 ou talvez 12 paradas relevantes, dependendo do hardware e da implementação. Acima disso, o crescimento exponencial compromete o uso em produção.
+No entanto, o custo é alto. Em uma formulação inspirada no algoritmo de Held-Karp para TSP, o tempo cresce na ordem de $O(k^2·2^k)$ e o espaço na ordem de $O(k·2^k)$. Isso pode ser administrável para valores pequenos de $k$, mas se torna rapidamente impraticável em tempo real. Em um sistema com decisão máxima de 2 segundos por ciclo, essa abordagem pode ser aceitável apenas quando cada entregador tiver poucos pedidos, algo como 8, 10 ou talvez 12 paradas relevantes, dependendo do hardware e da implementação. Acima disso, o crescimento exponencial compromete o uso em produção.
 
 
 ### b) Avalie a aplicabilidade de Divisão e Conquista ao problema de roteamento da FastBite.
@@ -220,8 +220,8 @@ As limitações aparecem nas fronteiras entre zonas. Um entregador muito próxim
 | Critério | Greedy | Programação Dinâmica | Divisão e Conquista |
 |---|---|---|---|
 | **Qualidade da solução** | Boa em muitos casos, mas sem garantia de ótimo global | Ótima no subproblema modelado corretamente, desde que o tamanho seja pequeno o bastante | Depende da qualidade da partição; pode ser boa, mas pode perder qualidade nas fronteiras |
-| **Complexidade de tempo** | Baixa a moderada, como \(O(nm + n^2)\) | Exponencial, tipicamente \(O(k^2 2^k)\) no roteamento isolado | Reduz o problema global em blocos menores, mas depende do custo interno de cada bloco |
-| **Complexidade de espaço** | Baixa | Alta, tipicamente \(O(k 2^k)\) | Moderada; exige estruturas para particionamento e coordenação entre zonas |
+| **Complexidade de tempo** | Baixa a moderada, como $O(nm + n^2)$ | Exponencial, tipicamente $O(k^2 2^k)$ no roteamento isolado | Reduz o problema global em blocos menores, mas depende do custo interno de cada bloco |
+| **Complexidade de espaço** | Baixa | Alta, tipicamente $O(k 2^k)$ | Moderada; exige estruturas para particionamento e coordenação entre zonas |
 | **Viabilidade em tempo real (≤ 2s)** | Alta, especialmente como solução inicial | Baixa para instâncias médias ou grandes | Média a alta, se combinado com heurísticas locais |
 | **Escalabilidade com aumento de n** | Boa, embora a qualidade possa cair | Ruim, por crescimento exponencial | Boa, desde que a divisão mantenha os subproblemas equilibrados |
 | **Facilidade de adaptação a mudanças** | Alta; reage bem a novos pedidos e mudanças de trânsito | Baixa; recalcular estados pode ser caro | Média; mudanças locais podem ser tratadas por zona, mas há custo de coordenação |
@@ -266,4 +266,3 @@ Um exemplo dentro do contexto de delivery seria o planejamento antecipado de uma
 Em sistemas de larga escala, “bom o suficiente” passa a ser a melhor decisão técnica quando o custo de buscar a solução ideal supera o benefício prático dessa idealização. No caso da FastBite, o problema de atribuição e roteamento cresce de forma combinatória e se relaciona a problemas clássicos como TSP e VRP, que se tornam inviáveis para resolução ótima em tempo real.
 
 Nesse contexto, insistir na solução perfeita pode degradar a qualidade real do serviço, porque uma decisão atrasada também é uma decisão ruim. A complexidade computacional impõe limites concretos: não basta que um algoritmo seja correto; ele precisa ser executável dentro das restrições do sistema. Por isso, a melhor engenharia nem sempre busca o ótimo teórico, mas sim o melhor equilíbrio entre qualidade, tempo de resposta, consumo de recursos e capacidade de adaptação.
-
